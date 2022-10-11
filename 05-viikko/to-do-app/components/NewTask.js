@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   Pressable,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -19,12 +20,13 @@ export default function NewTask() {
   const [prioritized, setPrioritized] = useState(false);
 
   const [task, setTask] = useState({
-    id: 0,
+    id: DATA.length === 0 ? 1 : DATA.length + 1,
     title: "",
     description: "",
     prioritized: prioritized,
     created: createdDate.toLocaleDateString().replace(/\//g, "."),
     deadline: "",
+    archived: "",
   });
 
   let deadLine;
@@ -32,11 +34,10 @@ export default function NewTask() {
     deadLine = date.toLocaleDateString().replace(/\//g, ".");
   }
 
-  console.log(prioritized);
-
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
-  const toggleSwitchPrio = () =>
-    setPrioritized((previousState) => !previousState);
+  const toggleSwitchPrio = () => {
+    setPrioritized(() => !prioritized);
+  };
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -63,15 +64,48 @@ export default function NewTask() {
     }));
   };
 
+  const submitNewTask = (event) => {
+    event.preventDefault();
+    Keyboard.dismiss();
+
+    DATA.push(task);
+
+    // Set task to default
+    setTask({
+      id: DATA.length === 0 ? 1 : DATA.length + 1,
+      title: "",
+      description: "",
+      prioritized: prioritized,
+      created: createdDate.toLocaleDateString().replace(/\//g, "."),
+      deadline: "",
+      archived: "",
+    });
+
+    console.log("This is the new task: ", task);
+
+    setIsEnabled(false);
+    setPrioritized(false);
+  };
+
   useEffect(() => {
+    console.log(" <--- USEEFFECT ---> ");
+    console.log("PRIORITIZED: ---> " + prioritized);
+
+    if (prioritized == true) {
+      updateTask("prioritized", prioritized);
+      // console.log(prioritized);
+    } else {
+      updateTask("prioritized", false);
+      // console.log(prioritized);
+    }
+
     if (isEnabled) {
       updateTask("deadline", date.toLocaleDateString().replace(/\//g, "."));
     } else {
-      updateTask("deadline", "");
+      updateTask("deadline", "no deadline");
     }
   }, [date, isEnabled, prioritized]);
 
-  console.log(task);
   return (
     <View style={styles.container}>
       <Text>NewTask</Text>
@@ -108,7 +142,7 @@ export default function NewTask() {
         </Pressable>
       )}
 
-      <Pressable>
+      <Pressable onPress={submitNewTask}>
         <Text>SUBMIT NEW TASK</Text>
       </Pressable>
       <Text>selected: {date.toLocaleDateString()}</Text>

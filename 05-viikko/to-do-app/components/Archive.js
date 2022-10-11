@@ -1,10 +1,55 @@
-import { View, Text } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+
+import { ArchiveData } from "../ArchiveData";
+import { useIsFocused } from "@react-navigation/native";
+import ArchiveTaskCard from "./ArchiveTaskCard";
 
 export default function Archive() {
+  const [archive, setArchive] = useState([]);
+
+  const isFocused = useIsFocused();
+
+  const getAllArchiveTasks = () => {
+    const mappedData = ArchiveData.map((task) => {
+      return (
+        <ArchiveTaskCard
+          task={task}
+          key={task.id}
+          getAllArchiveTasks={getAllArchiveTasks}
+        />
+      );
+    });
+
+    setArchive(mappedData.reverse());
+  };
+
+  useEffect(() => {
+    getAllArchiveTasks();
+  }, [isFocused]);
+
   return (
-    <View>
-      <Text>Archive</Text>
+    <View style={styles.containerMain}>
+      <ScrollView style={styles.archiveContainer}>{archive}</ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  containerMain: {
+    padding: 10,
+    backgroundColor: "#ECECEC",
+  },
+
+  container: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderRadius: 15,
+    marginBottom: 5,
+    backgroundColor: "#F8C286",
+  },
+
+  archiveContainer: {
+    height: "100%",
+  },
+});
