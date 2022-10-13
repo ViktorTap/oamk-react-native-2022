@@ -21,32 +21,31 @@ export default function TaskCard({ task, getAllTasks }) {
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(false);
-  // const [prioritized, setPrioritized] = useState(false);
 
   const [editTask, setEditTask] = useState({
     title: task.title,
     description: task.description,
     prioritized: task.prioritized,
     created: task.created,
-    deadline:
-      task.deadline === "no deadline"
-        ? "no deadline"
-        : task.deadLine && setIsEnabled(true),
+    deadline: task.deadline,
+    isEnabled: task.isEnabled,
+    archived: task.archived,
   });
 
   let deadLine;
-  if (isEnabled) {
+  if (editTask.isEnabled) {
     deadLine = date.toLocaleDateString().replace(/\//g, ".");
   }
 
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const toggleSwitch = () => {
+    updateTask("isEnabled", !editTask.isEnabled);
+  };
 
   const toggleSwitchPrio = () => {
     updateTask("prioritized", !editTask.prioritized);
   };
 
-  const onChange = (event, selectedDate) => {
+  const onChange = (selectedDate) => {
     const currentDate = selectedDate;
     setShow(false);
     setDate(currentDate);
@@ -76,10 +75,13 @@ export default function TaskCard({ task, getAllTasks }) {
   };
 
   const archiveTaskBtn = (id) => {
+    task.archived = date.toLocaleDateString().replace(/\//g, ".");
+
     const indexToDelete = DATA.findIndex((element) => element.id === id);
     ArchiveData.push(DATA[indexToDelete]);
     deleteTaskBtn(id);
-    console.log(ArchiveData);
+
+    // console.log(ArchiveData);
   };
 
   const updateTask = (key, value) => {
@@ -88,7 +90,7 @@ export default function TaskCard({ task, getAllTasks }) {
       [key]: value,
     }));
 
-    console.log(DATA);
+    // console.log(DATA);
   };
 
   const submitNewTask = (event) => {
@@ -100,17 +102,18 @@ export default function TaskCard({ task, getAllTasks }) {
     task.description = editTask.description;
     task.prioritized = editTask.prioritized;
     task.deadline = editTask.deadline;
+    task.isEnabled = editTask.isEnabled;
 
-    console.log(task);
+    // console.log(task);
   };
 
   useEffect(() => {
-    if (isEnabled) {
+    if (editTask.isEnabled) {
       updateTask("deadline", date.toLocaleDateString().replace(/\//g, "."));
     } else {
       updateTask("deadline", "no deadline");
     }
-  }, [date, isEnabled]);
+  }, [date, editTask.isEnabled]);
 
   return (
     <View style={styles.container}>
@@ -119,104 +122,118 @@ export default function TaskCard({ task, getAllTasks }) {
         onPress={() => setIsOpen(!isOpen)}
       >
         <View style={styles.basicInfoContainer}>
-          <Text style={styles.basicText}>{task.title}</Text>
+          <Text style={styles.basicText}>
+            {task.title}{" "}
+            {task.prioritized && (
+              <FontAwesome name="star" size={18} color="gold" />
+            )}
+          </Text>
           <Text style={styles.basicText}>{task.deadline}</Text>
         </View>
 
         {isOpen && (
           <View>
-            <Text>{task.description}</Text>
-            <TouchableOpacity
-              style={styles.touchableOpacityStyle}
-              onPress={() => deleteTaskBtn(task.id)}
-            >
-              <FontAwesome name="trash" size={32} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => archiveTaskBtn(task.id)}>
-              <Ionicons name="archive" size={32} />
-            </TouchableOpacity>
+            <Text style={styles.infoContainerDescription}>
+              {task.description}
+            </Text>
+            <View style={styles.openInfoButtonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonDelete]}
+                onPress={() => deleteTaskBtn(task.id)}
+              >
+                <FontAwesome name="trash" size={18} color="#000000" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonArchive]}
+                onPress={() => archiveTaskBtn(task.id)}
+              >
+                <Ionicons name="archive" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
 
-            {/* --- --- --- --- MODAL --- --- --- --- */}
+              {/* --- --- --- --- MODAL --- --- --- --- */}
 
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => {
-                setModalVisible(!modalVisible);
-              }}
-            >
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <Text style={styles.modalText}>Edit task: {task.title}</Text>
-                  <Text>NewTask</Text>
-                  <TextInput
-                    placeholder="Title"
-                    value={editTask.title}
-                    onChangeText={(value) => updateTask("title", value)}
-                  />
-                  <TextInput
-                    placeholder="description"
-                    multiline={true}
-                    value={editTask.description}
-                    onChangeText={(value) => updateTask("description", value)}
-                  />
-                  <Text>Prioritized?</Text>
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={editTask.prioritized ? "#f5dd4b" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitchPrio}
-                    value={editTask.prioritized}
-                  />
-                  <Text>Deadline?</Text>
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                  />
-                  {isEnabled && (
-                    <Pressable onPress={showDatepicker}>
-                      <Text>Show Calendar</Text>
-                    </Pressable>
-                  )}
-
-                  <Pressable onPress={submitNewTask}>
-                    <Text>SUBMIT NEW TASK</Text>
-                  </Pressable>
-                  <Text>selected: {date.toLocaleDateString()}</Text>
-                  {show && (
-                    <DateTimePicker
-                      testID="dateTimePicker"
-                      value={date}
-                      mode={mode}
-                      onChange={onChange}
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>
+                      Edit task: {task.title}
+                    </Text>
+                    <Text>NewTask</Text>
+                    <TextInput
+                      placeholder="Title"
+                      value={editTask.title}
+                      onChangeText={(value) => updateTask("title", value)}
                     />
-                  )}
-                  <Pressable
-                    style={[styles.button, styles.buttonClose]}
-                    onPress={() => setModalVisible(!modalVisible)}
-                  >
-                    <Text style={styles.textStyle}>Hide Modal</Text>
-                  </Pressable>
+                    <TextInput
+                      placeholder="description"
+                      multiline={true}
+                      value={editTask.description}
+                      onChangeText={(value) => updateTask("description", value)}
+                    />
+                    <Text>Prioritized?</Text>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#81b0ff" }}
+                      thumbColor={editTask.prioritized ? "#f5dd4b" : "#f4f3f4"}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={toggleSwitchPrio}
+                      value={editTask.prioritized}
+                    />
+                    <Text>Deadline?</Text>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#81b0ff" }}
+                      thumbColor={editTask.isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={toggleSwitch}
+                      value={editTask.isEnabled}
+                    />
+                    {editTask.isEnabled && (
+                      <Pressable onPress={showDatepicker}>
+                        <Text>Show Calendar</Text>
+                      </Pressable>
+                    )}
 
-                  <Pressable
-                    style={[styles.button, styles.buttonClose]}
-                    onPress={() => editTaskBtn(task.id)}
-                  >
-                    <Text style={styles.textStyle}>EDIT</Text>
-                  </Pressable>
+                    <Pressable onPress={submitNewTask}>
+                      <Text>SUBMIT NEW TASK</Text>
+                    </Pressable>
+                    <Text>selected: {date.toLocaleDateString()}</Text>
+                    {show && (
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        onChange={onChange}
+                      />
+                    )}
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisible(!modalVisible)}
+                    >
+                      <Text style={styles.textStyle}>Hide Modal</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => editTaskBtn(task.id)}
+                    >
+                      <Text style={styles.textStyle}>EDIT</Text>
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            </Modal>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonOpen]}
-              onPress={() => setModalVisible(true)}
-            >
-              <FontAwesome name="edit" size={32} />
-            </TouchableOpacity>
+              </Modal>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonEdit]}
+                onPress={() => setModalVisible(true)}
+              >
+                <FontAwesome name="edit" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </Pressable>
@@ -228,13 +245,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
-    // width: "100%",
     borderWidth: 1,
     borderRadius: 15,
     marginBottom: 5,
     backgroundColor: "#F8C286",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
   },
   pressContainer: {
     padding: 10,
@@ -245,7 +267,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  descriptionContainer: {},
+  infoContainerDescription: {
+    marginTop: 10,
+  },
   basicText: {
     fontSize: 18,
   },
@@ -255,7 +279,14 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
 
+  openInfoButtonContainer: {
+    flexDirection: "row-reverse",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+
   // --- --- --- --- MODAL --- --- --- ---
+
   centeredView: {
     flex: 1,
     justifyContent: "center",
@@ -283,11 +314,14 @@ const styles = StyleSheet.create({
     elevation: 2,
     alignSelf: "flex-start",
   },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
+  buttonEdit: {
+    backgroundColor: "#5B58EC",
   },
-  buttonClose: {
-    backgroundColor: "#2196F3",
+  buttonArchive: {
+    backgroundColor: "#102A57",
+  },
+  buttonDelete: {
+    backgroundColor: "#FF8E86",
   },
   textStyle: {
     color: "white",

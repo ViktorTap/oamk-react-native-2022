@@ -40,6 +40,7 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
         {isOpen && (
           <View>
             <Text>{task.description}</Text>
+            <Text style={styles.basicText}>{task.archived}</Text>
             <TouchableOpacity
               style={styles.touchableOpacityStyle}
               onPress={() => deleteTaskBtn(task.id)}

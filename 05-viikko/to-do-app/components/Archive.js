@@ -11,11 +11,11 @@ export default function Archive() {
   const isFocused = useIsFocused();
 
   const getAllArchiveTasks = () => {
-    const mappedData = ArchiveData.map((task) => {
+    const mappedData = ArchiveData.map((task, index) => {
       return (
         <ArchiveTaskCard
           task={task}
-          key={task.id}
+          key={index}
           getAllArchiveTasks={getAllArchiveTasks}
         />
       );

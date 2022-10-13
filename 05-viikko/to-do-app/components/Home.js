@@ -1,29 +1,108 @@
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
+import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import TaskCard from "./TaskCard";
-import NewTask from "./NewTask";
 import { DATA } from "../Data";
+import { StatusBar } from "expo-status-bar";
 
-export default function Home() {
+export default function Home({ navigation }) {
   const [todos, setTodos] = useState([]);
-
+  const [search, setSearch] = useState("");
+  const [searchBarFocused, setSearchBarFocused] = useState(false);
+  const [date] = useState(new Date());
+  const weekday = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
   const isFocused = useIsFocused();
+  const searchRef = useRef();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View
+          style={
+            searchBarFocused ? styles.searchBoxFocus : styles.searchBoxBlur
+          }
+        >
+          {searchBarFocused ? (
+            <TouchableOpacity onPress={() => searchBoxActive()}>
+              <MaterialCommunityIcons name="cancel" size={18} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => searchBoxActive()}>
+              <FontAwesome name="search" size={18} />
+            </TouchableOpacity>
+          )}
+
+          {searchBarFocused && (
+            <TextInput
+              style={styles.searchBoxText}
+              placeholder="search..."
+              onChangeText={(search) => setSearch(search.toLowerCase())}
+              defaultValue={search}
+              ref={searchRef}
+              autoFocus={true}
+              returnKeyType="search"
+            />
+          )}
+        </View>
+      ),
+    });
+  }, [searchBarFocused]);
+
+  const searchBoxActive = () => {
+    if (!searchBarFocused) {
+      setSearchBarFocused(true);
+    } else {
+      setSearchBarFocused(false);
+      setSearch("");
+    }
+  };
 
   const getAllTasks = () => {
-    const mappedData = DATA.map((task) => {
-      return <TaskCard task={task} key={task.id} getAllTasks={getAllTasks} />;
-    });
+    const mappedData = DATA.filter((task) => {
+      return search.toLowerCase() === ""
+        ? task
+        : task.title.toLowerCase().includes(search) ||
+            task.description.toLowerCase().includes(search);
+    }).map((task) => (
+      <TaskCard task={task} key={task.id} getAllTasks={getAllTasks} />
+    ));
+
+    // console.log(search);
+
     setTodos(mappedData.reverse());
   };
 
   useEffect(() => {
     getAllTasks();
-  }, [isFocused]);
+
+    console.log("<--- RENDER USE EFFECT --->");
+  }, [isFocused, search, searchBarFocused]);
 
   return (
     <View style={styles.container}>
+      <View>
+        <Text>Ready to start your day?</Text>
+        <Text>
+          Today is {weekday[date.getDay()]}{" "}
+          {date.toLocaleDateString().replace(/\//g, ".")}
+        </Text>
+      </View>
       <ScrollView style={styles.todosContainer}>
         {todos.length === 0 ? (
           <Text>"No tasks yet. Add new task." </Text>
@@ -31,12 +110,15 @@ export default function Home() {
           todos
         )}
       </ScrollView>
+      <StatusBar style="light" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    // paddingVertical: Constants.statusBarHeight,
+    // paddingHorizontal: 10,
     padding: 10,
     // flex: 1,
     backgroundColor: "#ECECEC",
@@ -44,6 +126,31 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
   },
   todosContainer: {
-    height: "100%",
+    height: "95%",
+    // borderWidth: 1,
+    marginTop: 10,
+  },
+  searchBoxBlur: {
+    flexDirection: "row",
+    // marginBottom: ,
+    alignItems: "center",
+    // borderWidth: 1,
+    // borderRadius: 15,
+    padding: 3,
+    marginRight: 15,
+    alignContent: "flex-start",
+  },
+  searchBoxFocus: {
+    flexDirection: "row",
+    // marginBottom: ,
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: 3,
+    marginRight: 15,
+    width: "75%",
+  },
+  searchBoxText: {
+    marginLeft: 5,
   },
 });

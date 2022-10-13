@@ -27,6 +27,7 @@ export default function NewTask() {
     created: createdDate.toLocaleDateString().replace(/\//g, "."),
     deadline: "",
     archived: "",
+    isEnabled: isEnabled,
   });
 
   let deadLine;
@@ -34,7 +35,7 @@ export default function NewTask() {
     deadLine = date.toLocaleDateString().replace(/\//g, ".");
   }
 
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const toggleSwitch = () => setIsEnabled(() => !isEnabled);
   const toggleSwitchPrio = () => {
     setPrioritized(() => !prioritized);
   };
@@ -79,6 +80,7 @@ export default function NewTask() {
       created: createdDate.toLocaleDateString().replace(/\//g, "."),
       deadline: "",
       archived: "",
+      isEnabled: isEnabled,
     });
 
     console.log("This is the new task: ", task);
@@ -101,8 +103,10 @@ export default function NewTask() {
 
     if (isEnabled) {
       updateTask("deadline", date.toLocaleDateString().replace(/\//g, "."));
+      updateTask("isEnabled", isEnabled);
     } else {
       updateTask("deadline", "no deadline");
+      updateTask("isEnabled", false);
     }
   }, [date, isEnabled, prioritized]);
 
