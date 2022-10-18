@@ -41,10 +41,10 @@ export default function NewTask({ navigation }) {
 
   const toast = useToast();
 
-  let deadLine;
-  if (isEnabled) {
-    deadLine = date.toLocaleDateString().replace(/\//g, ".");
-  }
+  // let deadline;
+  // if (isEnabled) {
+  //   deadline = date.toLocaleDateString().replace(/\//g, ".");
+  // }
 
   const toggleSwitch = () => setIsEnabled(() => !isEnabled);
   const toggleSwitchPrio = () => {
@@ -99,6 +99,8 @@ export default function NewTask({ navigation }) {
     setIsEnabled(false);
     setPrioritized(false);
 
+    setDate(new Date());
+
     toast.show("Task created successfully", {
       type: "success",
       placement: "bottom",
@@ -121,19 +123,19 @@ export default function NewTask({ navigation }) {
 
     if (prioritized == true) {
       updateTask("prioritized", prioritized);
-      // console.log(prioritized);
     } else {
       updateTask("prioritized", false);
-      // console.log(prioritized);
     }
 
     if (isEnabled) {
-      updateTask("deadline", date.toLocaleDateString().replace(/\//g, "."));
+      updateTask("deadline", date.toLocaleDateString());
       updateTask("isEnabled", isEnabled);
     } else {
       updateTask("deadline", "no deadline");
       updateTask("isEnabled", false);
     }
+
+    console.log(task);
   }, [date, isEnabled, prioritized, task.title]);
 
   return (

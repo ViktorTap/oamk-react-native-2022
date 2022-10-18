@@ -19,7 +19,9 @@ import * as Animatable from "react-native-animatable";
 export default function TaskCard({ task, getAllTasks }) {
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(
+    task.deadline != "no deadline" ? new Date(task.deadline) : new Date()
+  );
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
@@ -28,15 +30,15 @@ export default function TaskCard({ task, getAllTasks }) {
     description: task.description,
     prioritized: task.prioritized,
     created: task.created,
-    deadline: task.deadline,
+    deadline: date.toDateString(),
     isEnabled: task.isEnabled,
     archived: task.archived,
   });
 
-  let deadLine;
-  if (editTask.isEnabled) {
-    deadLine = date.toLocaleDateString().replace(/\//g, ".");
-  }
+  // let deadline;
+  // if (editTask.isEnabled) {
+  //   deadline = task.deadline;
+  // }
 
   const toggleSwitch = () => {
     updateTask("isEnabled", !editTask.isEnabled);
@@ -46,9 +48,15 @@ export default function TaskCard({ task, getAllTasks }) {
     updateTask("prioritized", !editTask.prioritized);
   };
 
-  const onChange = (selectedDate) => {
+  const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
+
     setShow(false);
+
+    if (event?.type === "dismissed") {
+      setDate(currentDate);
+    }
+
     setDate(currentDate);
   };
 
@@ -96,13 +104,13 @@ export default function TaskCard({ task, getAllTasks }) {
 
   const submitNewTask = (event) => {
     event.preventDefault();
-
+    console.log("SUBMITTED");
     Keyboard.dismiss();
 
     task.title = editTask.title;
     task.description = editTask.description;
     task.prioritized = editTask.prioritized;
-    task.deadline = editTask.deadline;
+    task.deadline = date.toDateString();
     task.isEnabled = editTask.isEnabled;
 
     // console.log(task);
@@ -110,26 +118,26 @@ export default function TaskCard({ task, getAllTasks }) {
 
   useEffect(() => {
     if (editTask.isEnabled) {
-      updateTask("deadline", date.toLocaleDateString().replace(/\//g, "."));
+      updateTask("deadline", editTask.deadline);
     } else {
       updateTask("deadline", "no deadline");
     }
-  }, [date, editTask.isEnabled]);
+  }, [date, editTask.isEnabled, task.deadline]);
 
   return (
     <Animatable.View
-      style={
-        date.toLocaleDateString().replace(/\//g, ".") === task.deadline
-          ? styles.containerDeadline
-          : date.toLocaleDateString().replace(/\//g, ".") > task.deadline
-          ? styles.containerOld
-          : styles.container
-      }
-      animation={
-        date.toLocaleDateString().replace(/\//g, ".") === task.deadline
-          ? "flash"
-          : ""
-      }
+      // style={
+      //date.toLocaleDateString().replace(/\//g, ".") === task.deadline
+      //? styles.containerDeadline
+      //: date.toLocaleDateString().replace(/\//g, ".") > task.deadline
+      //? styles.containerOld
+      //: styles.container
+      //}
+      //animation={
+      //  date.toLocaleDateString().replace(/\//g, ".") === task.deadline
+      //    ? "flash"
+      //    : ""
+      //}
       easing="ease-out"
       iterationCount="infinite"
       iterationDelay={5000}
@@ -220,7 +228,7 @@ export default function TaskCard({ task, getAllTasks }) {
                     <Pressable onPress={submitNewTask}>
                       <Text>SUBMIT NEW TASK</Text>
                     </Pressable>
-                    <Text>selected: {date.toLocaleDateString()}</Text>
+
                     {show && (
                       <DateTimePicker
                         testID="dateTimePicker"
