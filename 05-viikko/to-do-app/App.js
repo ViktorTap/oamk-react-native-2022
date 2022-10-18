@@ -6,61 +6,77 @@ import NewTask from "./components/NewTask";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Archive from "./components/Archive";
 import { Ionicons } from "@expo/vector-icons";
+import { ToastProvider } from "react-native-toast-notifications";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="Home"
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+    <ToastProvider>
+      <NavigationContainer>
+        <Tab.Navigator
+          initialRouteName="Home"
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
 
-            if (route.name === "Home") {
-              iconName = focused ? "home" : "home-outline";
-            } else if (route.name === "New Task") {
-              iconName = focused ? "add-circle" : "add-circle-outline";
-            } else if (route.name === "Archive") {
-              iconName = focused ? "archive" : "archive-outline";
-            }
+              if (route.name === "Home") {
+                iconName = focused ? "home" : "home-outline";
+              } else if (route.name === "New Task") {
+                iconName = focused ? "add-circle" : "add-circle-outline";
+              } else if (route.name === "Archive") {
+                iconName = focused ? "archive" : "archive-outline";
+              }
 
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          headerStyle: {
-            backgroundColor: "#5AB9ED",
-          },
-          tabBarActiveTintColor: "#5B58EC",
-          tabBarInactiveTintColor: "gray",
-        })}
-      >
-        <Tab.Screen
-          name="Home"
-          component={Home}
-          options={{
-            title: "Home",
-            headerTitle: "Home",
-          }}
-        />
-        <Tab.Screen
-          name="New Task"
-          component={NewTask}
-          options={{
-            title: "New Task",
-            headerTitle: "New Task",
-          }}
-        />
-        <Tab.Screen
-          name="Archive"
-          component={Archive}
-          options={{
-            title: "Archive",
-            headerTitle: "Archive",
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            headerStyle: {
+              backgroundColor: "#81c8ee",
+              elevation: 2,
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 15,
+              shadowColor: "#000",
+            },
+            headerTintColor: "#284277",
+            tabBarItemStyle: {
+              backgroundColor: "#ede8e4",
+            },
+            tabBarActiveTintColor: "#284277",
+            tabBarInactiveTintColor: "gray",
+            tabBarHideOnKeyboard: "true",
+          })}
+        >
+          <Tab.Screen
+            name="Home"
+            component={Home}
+            options={{
+              title: "Home",
+              headerTitle: "Home",
+            }}
+          />
+          <Tab.Screen
+            name="New Task"
+            component={NewTask}
+            options={{
+              title: "New Task",
+              headerTitle: "Create a Task",
+            }}
+          />
+          <Tab.Screen
+            name="Archive"
+            component={Archive}
+            options={{
+              title: "Archive",
+              headerTitle: "Archive",
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </ToastProvider>
   );
 }

@@ -12,11 +12,15 @@ import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import TaskCard from "./TaskCard";
 import { DATA } from "../Data";
 import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
+import moment from "moment";
+import "moment/locale/fi";
 
 export default function Home({ navigation }) {
   const [todos, setTodos] = useState([]);
   const [search, setSearch] = useState("");
   const [searchBarFocused, setSearchBarFocused] = useState(false);
+
   const [date] = useState(new Date());
   const weekday = [
     "Sunday",
@@ -90,28 +94,31 @@ export default function Home({ navigation }) {
 
   useEffect(() => {
     getAllTasks();
-
-    console.log("<--- RENDER USE EFFECT --->");
   }, [isFocused, search, searchBarFocused]);
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text>Ready to start your day?</Text>
-        <Text>
-          Today is {weekday[date.getDay()]}{" "}
-          {date.toLocaleDateString().replace(/\//g, ".")}
-        </Text>
+    <LinearGradient
+      colors={["#81c8ee", "#ede8e4"]}
+      start={{ x: 0.4, y: 0.3 }}
+      end={{ x: 0.2, y: 0.95 }}
+    >
+      <View style={styles.container}>
+        <View>
+          <Text>Ready to start your day?</Text>
+          <Text>
+            Today is {weekday[date.getDay()]} {moment().format("l")}
+          </Text>
+        </View>
+        <ScrollView style={styles.todosContainer}>
+          {todos.length === 0 ? (
+            <Text>"No tasks yet. Add new task." </Text>
+          ) : (
+            todos
+          )}
+        </ScrollView>
+        <StatusBar style="dark" />
       </View>
-      <ScrollView style={styles.todosContainer}>
-        {todos.length === 0 ? (
-          <Text>"No tasks yet. Add new task." </Text>
-        ) : (
-          todos
-        )}
-      </ScrollView>
-      <StatusBar style="light" />
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -121,7 +128,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 10,
     padding: 10,
     // flex: 1,
-    backgroundColor: "#ECECEC",
+    // backgroundColor: "red",
     // alignItems: "center",
     // justifyContent: "center",
   },

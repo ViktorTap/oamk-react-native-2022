@@ -14,6 +14,7 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { DATA } from "../Data";
 import { ArchiveData } from "../ArchiveData";
+import * as Animatable from "react-native-animatable";
 
 export default function TaskCard({ task, getAllTasks }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -116,7 +117,23 @@ export default function TaskCard({ task, getAllTasks }) {
   }, [date, editTask.isEnabled]);
 
   return (
-    <View style={styles.container}>
+    <Animatable.View
+      style={
+        date.toLocaleDateString().replace(/\//g, ".") === task.deadline
+          ? styles.containerDeadline
+          : date.toLocaleDateString().replace(/\//g, ".") > task.deadline
+          ? styles.containerOld
+          : styles.container
+      }
+      animation={
+        date.toLocaleDateString().replace(/\//g, ".") === task.deadline
+          ? "flash"
+          : ""
+      }
+      easing="ease-out"
+      iterationCount="infinite"
+      iterationDelay={5000}
+    >
       <Pressable
         style={styles.pressContainer}
         onPress={() => setIsOpen(!isOpen)}
@@ -128,6 +145,7 @@ export default function TaskCard({ task, getAllTasks }) {
               <FontAwesome name="star" size={18} color="gold" />
             )}
           </Text>
+
           <Text style={styles.basicText}>{task.deadline}</Text>
         </View>
 
@@ -237,14 +255,13 @@ export default function TaskCard({ task, getAllTasks }) {
           </View>
         )}
       </Pressable>
-    </View>
+    </Animatable.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     borderWidth: 1,
     borderRadius: 15,
     marginBottom: 5,
@@ -258,6 +275,37 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 5,
   },
+  containerDeadline: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 15,
+    marginBottom: 5,
+    backgroundColor: "red",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+  },
+  containerOld: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 15,
+    marginBottom: 5,
+    backgroundColor: "grey",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+  },
+
   pressContainer: {
     padding: 10,
   },
