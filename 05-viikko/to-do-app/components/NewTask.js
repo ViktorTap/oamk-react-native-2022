@@ -15,25 +15,21 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { useToast } from "react-native-toast-notifications";
 
-import moment from "moment";
-import "moment/locale/fi";
-
 export default function NewTask({ navigation }) {
-  // moment.locale("fi");
-  const [createdDate] = useState(moment().format("L"));
+  const [createdDate] = useState(new Date().toLocaleDateString());
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [prioritized, setPrioritized] = useState(false);
   const [isSubmitActive, setIsSubmitActive] = useState(false);
-
+  const regex = /(\d+).(\d+).(\d+)/;
   const [task, setTask] = useState({
     id: DATA.length === 0 ? 1 : DATA.length + 1,
     title: "",
     description: "",
     prioritized: prioritized,
-    created: createdDate,
+    created: createdDate.replace(regex, "$2.$1.$3"),
     deadline: "",
     archived: "",
     isEnabled: isEnabled,
@@ -113,8 +109,6 @@ export default function NewTask({ navigation }) {
   };
 
   useEffect(() => {
-    // console.log(" <--- USEEFFECT ---> ");
-    // console.log("PRIORITIZED: ---> " + prioritized);
     if (task.title != "") {
       setIsSubmitActive(true);
     } else {

@@ -13,8 +13,6 @@ import TaskCard from "./TaskCard";
 import { DATA } from "../Data";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
-import moment from "moment";
-import "moment/locale/fi";
 
 export default function Home({ navigation }) {
   const [todos, setTodos] = useState([]);
@@ -31,8 +29,11 @@ export default function Home({ navigation }) {
     "Friday",
     "Saturday",
   ];
+
   const isFocused = useIsFocused();
   const searchRef = useRef();
+
+  const regex = /(\d+).(\d+).(\d+)/;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -106,7 +107,8 @@ export default function Home({ navigation }) {
         <View>
           <Text>Ready to start your day?</Text>
           <Text>
-            Today is {weekday[date.getDay()]} {moment().format("l")}
+            Today is {weekday[date.getDay()]}{" "}
+            {date.toLocaleDateString().replace(regex, "$2.$1.$3")}
           </Text>
         </View>
         <ScrollView style={styles.todosContainer}>
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
   },
   todosContainer: {
-    height: "95%",
+    height: "92%",
     // borderWidth: 1,
     marginTop: 10,
   },

@@ -13,6 +13,7 @@ import { DATA } from "../Data";
 
 export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
   const [isOpen, setIsOpen] = useState(false);
+  const regex = /(\d+).(\d+).(\d+)/;
 
   const deleteTaskBtn = (id) => {
     const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
@@ -34,13 +35,17 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
       >
         <View style={styles.basicInfoContainer}>
           <Text style={styles.basicText}>{task.title}</Text>
-          <Text style={styles.basicText}>{task.deadline}</Text>
+          <Text style={styles.basicText}>
+            {task.deadline.replace(regex, "$2.$1.$3")}
+          </Text>
         </View>
 
         {isOpen && (
           <View>
             <Text>{task.description}</Text>
-            <Text style={styles.basicText}>{task.archived}</Text>
+            <Text style={styles.basicText}>
+              {task.archived.replace(regex, "$2.$1.$3")}
+            </Text>
             <TouchableOpacity
               style={styles.touchableOpacityStyle}
               onPress={() => deleteTaskBtn(task.id)}

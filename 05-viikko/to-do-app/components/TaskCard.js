@@ -22,23 +22,21 @@ export default function TaskCard({ task, getAllTasks }) {
   const [date, setDate] = useState(
     task.deadline != "no deadline" ? new Date(task.deadline) : new Date()
   );
+  const [todayIs, setTodayIs] = useState(new Date().toLocaleDateString());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
+
+  const regex = /(\d+).(\d+).(\d+)/;
 
   const [editTask, setEditTask] = useState({
     title: task.title,
     description: task.description,
     prioritized: task.prioritized,
     created: task.created,
-    deadline: date.toDateString(),
+    deadline: date.toLocaleDateString(),
     isEnabled: task.isEnabled,
     archived: task.archived,
   });
-
-  // let deadline;
-  // if (editTask.isEnabled) {
-  //   deadline = task.deadline;
-  // }
 
   const toggleSwitch = () => {
     updateTask("isEnabled", !editTask.isEnabled);
@@ -84,7 +82,7 @@ export default function TaskCard({ task, getAllTasks }) {
   };
 
   const archiveTaskBtn = (id) => {
-    task.archived = date.toLocaleDateString().replace(/\//g, ".");
+    task.archived = date.toLocaleDateString();
 
     const indexToDelete = DATA.findIndex((element) => element.id === id);
     ArchiveData.push(DATA[indexToDelete]);
@@ -104,40 +102,39 @@ export default function TaskCard({ task, getAllTasks }) {
 
   const submitNewTask = (event) => {
     event.preventDefault();
-    console.log("SUBMITTED");
+
+    console.log(" <--- SUBMITTED ---> ");
+
     Keyboard.dismiss();
 
     task.title = editTask.title;
     task.description = editTask.description;
     task.prioritized = editTask.prioritized;
-    task.deadline = date.toDateString();
+    task.deadline = editTask.deadline;
     task.isEnabled = editTask.isEnabled;
-
-    // console.log(task);
   };
 
   useEffect(() => {
     if (editTask.isEnabled) {
-      updateTask("deadline", editTask.deadline);
+      updateTask("deadline", date.toLocaleDateString());
     } else {
       updateTask("deadline", "no deadline");
     }
+
+    console.log(" <--- DATE ---> " + date.toLocaleDateString());
+    console.log(" <--- TASK DATE ---> " + task.deadline);
   }, [date, editTask.isEnabled, task.deadline]);
 
   return (
     <Animatable.View
-      // style={
-      //date.toLocaleDateString().replace(/\//g, ".") === task.deadline
-      //? styles.containerDeadline
-      //: date.toLocaleDateString().replace(/\//g, ".") > task.deadline
-      //? styles.containerOld
-      //: styles.container
-      //}
-      //animation={
-      //  date.toLocaleDateString().replace(/\//g, ".") === task.deadline
-      //    ? "flash"
-      //    : ""
-      //}
+      style={
+        todayIs === task.deadline
+          ? styles.containerDeadline
+          : todayIs > task.deadline
+          ? styles.containerOld
+          : styles.container
+      }
+      animation={todayIs === task.deadline ? "flash" : ""}
       easing="ease-out"
       iterationCount="infinite"
       iterationDelay={5000}
@@ -154,7 +151,9 @@ export default function TaskCard({ task, getAllTasks }) {
             )}
           </Text>
 
-          <Text style={styles.basicText}>{task.deadline}</Text>
+          <Text style={styles.basicText}>
+            {task.deadline.replace(regex, "$2.$1.$3")}
+          </Text>
         </View>
 
         {isOpen && (
