@@ -15,6 +15,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { DATA } from "../Data";
 import { ArchiveData } from "../ArchiveData";
 import * as Animatable from "react-native-animatable";
+import { useToast } from "react-native-toast-notifications";
 
 export default function TaskCard({ task, getAllTasks }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +28,7 @@ export default function TaskCard({ task, getAllTasks }) {
   const [show, setShow] = useState(false);
 
   const regex = /(\d+).(\d+).(\d+)/;
+  const toast = useToast();
 
   const [editTask, setEditTask] = useState({
     title: task.title,
@@ -73,9 +75,25 @@ export default function TaskCard({ task, getAllTasks }) {
   const deleteTaskBtn = (id) => {
     const indexToDelete = DATA.findIndex((element) => element.id === id);
     DATA.splice(indexToDelete, 1);
+
+    toast.show("Task deleted!", {
+      type: "warning",
+      placement: "bottom",
+      duration: 3000,
+      offset: 30,
+
+      animationType: "slide-in | zoom-in",
+    });
+
     getAllTasks();
   };
 
+  const deleteAfterArchive = (id) => {
+    const indexToDelete = DATA.findIndex((element) => element.id === id);
+    DATA.splice(indexToDelete, 1);
+
+    getAllTasks();
+  };
   const editTaskBtn = (id) => {
     console.log("EDITING: ", id);
     const indexToDelete = DATA.findIndex((element) => element.id === id);
@@ -86,7 +104,17 @@ export default function TaskCard({ task, getAllTasks }) {
 
     const indexToDelete = DATA.findIndex((element) => element.id === id);
     ArchiveData.push(DATA[indexToDelete]);
-    deleteTaskBtn(id);
+
+    deleteAfterArchive(id);
+
+    toast.show("Task is done and archieved!", {
+      type: "success",
+      placement: "bottom",
+      duration: 3000,
+      offset: 30,
+
+      animationType: "slide-in | zoom-in",
+    });
 
     // console.log(ArchiveData);
   };
@@ -121,8 +149,8 @@ export default function TaskCard({ task, getAllTasks }) {
       updateTask("deadline", "no deadline");
     }
 
-    console.log(" <--- DATE ---> " + date.toLocaleDateString());
-    console.log(" <--- TASK DATE ---> " + task.deadline);
+    //console.log(" <--- DATE ---> " + date.toLocaleDateString());
+    //console.log(" <--- TASK DATE ---> " + task.deadline);
   }, [date, editTask.isEnabled, task.deadline]);
 
   return (
@@ -151,7 +179,11 @@ export default function TaskCard({ task, getAllTasks }) {
             )}
           </Text>
 
-          <Text style={styles.basicText}>
+          <Text
+            style={
+              todayIs === task.deadline ? styles.basicTextDl : styles.basicText
+            }
+          >
             {task.deadline.replace(regex, "$2.$1.$3")}
           </Text>
         </View>
@@ -272,8 +304,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     marginBottom: 5,
-    backgroundColor: "#F8C286",
+    backgroundColor: "#00D4A2",
     shadowColor: "#000",
+
     shadowOffset: {
       width: 0,
       height: 2,
@@ -287,7 +320,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     marginBottom: 5,
-    backgroundColor: "red",
+    backgroundColor: "#FF9B37",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -302,7 +335,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     marginBottom: 5,
-    backgroundColor: "grey",
+    backgroundColor: "#c1afa8",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -327,6 +360,11 @@ const styles = StyleSheet.create({
   },
   basicText: {
     fontSize: 18,
+  },
+  basicTextDl: {
+    // color: "#FF3F32",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 
   touchableOpacityStyle: {
@@ -376,7 +414,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#102A57",
   },
   buttonDelete: {
-    backgroundColor: "#FF8E86",
+    backgroundColor: "#FF3F32",
   },
   textStyle: {
     color: "white",

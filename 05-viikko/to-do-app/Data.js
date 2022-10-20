@@ -4,7 +4,7 @@ export const DATA = [
     title: "Labamba",
     description: "Info 1",
     prioritized: false,
-    created: "05.10.22",
+    created: "10.05.22",
     deadline: "10.10.22",
     archived: "",
   },
@@ -14,7 +14,7 @@ export const DATA = [
     description: "Info 2 Lorem bla bla",
     prioritized: false,
     created: "05.10.22",
-    deadline: "12.10.22",
+    deadline: "10.12.22",
     archived: "",
   },
   {
@@ -23,7 +23,7 @@ export const DATA = [
     description: "Info 3 bla bla bla",
     prioritized: false,
     created: "05.10.22",
-    deadline: "14.10.22",
+    deadline: "10.14.22",
     archived: "",
   },
 ];

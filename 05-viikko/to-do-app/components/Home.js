@@ -84,11 +84,9 @@ export default function Home({ navigation }) {
         ? task
         : task.title.toLowerCase().includes(search) ||
             task.description.toLowerCase().includes(search);
-    }).map((task) => (
-      <TaskCard task={task} key={task.id} getAllTasks={getAllTasks} />
+    }).map((task, index) => (
+      <TaskCard task={task} key={index} getAllTasks={getAllTasks} />
     ));
-
-    // console.log(search);
 
     setTodos(mappedData.reverse());
   };
@@ -126,32 +124,22 @@ export default function Home({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    // paddingVertical: Constants.statusBarHeight,
-    // paddingHorizontal: 10,
     padding: 10,
-    // flex: 1,
-    // backgroundColor: "red",
-    // alignItems: "center",
-    // justifyContent: "center",
   },
   todosContainer: {
     height: "92%",
-    // borderWidth: 1,
     marginTop: 10,
   },
   searchBoxBlur: {
     flexDirection: "row",
-    // marginBottom: ,
     alignItems: "center",
-    // borderWidth: 1,
-    // borderRadius: 15,
     padding: 3,
     marginRight: 15,
     alignContent: "flex-start",
   },
   searchBoxFocus: {
     flexDirection: "row",
-    // marginBottom: ,
+
     alignItems: "center",
     borderWidth: 1,
     borderRadius: 15,

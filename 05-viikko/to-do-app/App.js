@@ -13,7 +13,13 @@ export default function App() {
   const Tab = createBottomTabNavigator();
 
   return (
-    <ToastProvider>
+    <ToastProvider
+      successColor="#00D4A2"
+      warningColor="#FF3F32"
+      textStyle={{
+        color: "#000",
+      }}
+    >
       <NavigationContainer>
         <Tab.Navigator
           initialRouteName="Home"
@@ -42,7 +48,7 @@ export default function App() {
               shadowRadius: 15,
               shadowColor: "#000",
             },
-            headerTintColor: "#284277",
+            headerTintColor: "#102A57",
             tabBarItemStyle: {
               backgroundColor: "#ede8e4",
             },
