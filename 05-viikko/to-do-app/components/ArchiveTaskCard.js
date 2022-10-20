@@ -6,18 +6,38 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ArchiveData } from "../ArchiveData";
 import { DATA } from "../Data";
+import { useToast } from "react-native-toast-notifications";
 
-export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
+export default function ArchiveTaskCard({ task, getAllArchiveTasks, fonts }) {
   const [isOpen, setIsOpen] = useState(false);
   const regex = /(\d+).(\d+).(\d+)/;
+
+  const toast = useToast();
 
   const deleteTaskBtn = (id) => {
     const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
     ArchiveData.splice(indexToDelete, 1);
+
+    toast.show("Task deleted!", {
+      type: "warning",
+      placement: "bottom",
+      duration: 3000,
+      offset: 30,
+
+      animationType: "slide-in | zoom-in",
+    });
+
+    getAllArchiveTasks();
+  };
+
+  const deleteTaskWihoutToast = (id) => {
+    const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
+    ArchiveData.splice(indexToDelete, 1);
+
     getAllArchiveTasks();
   };
 
@@ -26,7 +46,16 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
 
     DATA.push(ArchiveData[indexToDelete]);
 
-    deleteTaskBtn(id);
+    toast.show("Task restored!", {
+      type: "success",
+      placement: "bottom",
+      duration: 3000,
+      offset: 30,
+
+      animationType: "slide-in | zoom-in",
+    });
+
+    deleteTaskWihoutToast(id);
   };
 
   return (
@@ -49,7 +78,8 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks }) {
             </Text>
             <View style={styles.openInfoButtonContainer}>
               <Text style={styles.basicText}>
-                Archieved:{` `}
+                <Ionicons name="archive" size={18} color="#000" />
+                {` `}
                 {task.archived.replace(regex, "$2.$1.$3")}
               </Text>
               <TouchableOpacity
@@ -103,15 +133,18 @@ const styles = StyleSheet.create({
   },
   basicText: {
     fontSize: 18,
+    fontFamily: "Poppins-Regular",
   },
   infoContainerDescription: {
     marginTop: 10,
+    fontFamily: "Poppins-Regular",
   },
 
   openInfoButtonContainer: {
     flexDirection: "row-reverse",
     justifyContent: "space-between",
     marginTop: 10,
+    alignItems: "center",
   },
 
   touchableOpacityStyle: {

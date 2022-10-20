@@ -6,9 +6,9 @@ import { useIsFocused } from "@react-navigation/native";
 import ArchiveTaskCard from "./ArchiveTaskCard";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function Archive() {
+export default function Archive({ route }) {
   const [archive, setArchive] = useState([]);
-
+  const { fontsLoaded } = route.params;
   const isFocused = useIsFocused();
 
   const getAllArchiveTasks = () => {
@@ -18,6 +18,7 @@ export default function Archive() {
           task={task}
           key={index}
           getAllArchiveTasks={getAllArchiveTasks}
+          fonts={fontsLoaded}
         />
       );
     });

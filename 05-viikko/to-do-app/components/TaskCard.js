@@ -17,7 +17,7 @@ import { ArchiveData } from "../ArchiveData";
 import * as Animatable from "react-native-animatable";
 import { useToast } from "react-native-toast-notifications";
 
-export default function TaskCard({ task, getAllTasks }) {
+export default function TaskCard({ task, getAllTasks, fonts }) {
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(
@@ -148,9 +148,6 @@ export default function TaskCard({ task, getAllTasks }) {
     } else {
       updateTask("deadline", "no deadline");
     }
-
-    //console.log(" <--- DATE ---> " + date.toLocaleDateString());
-    //console.log(" <--- TASK DATE ---> " + task.deadline);
   }, [date, editTask.isEnabled, task.deadline]);
 
   return (
@@ -357,9 +354,11 @@ const styles = StyleSheet.create({
 
   infoContainerDescription: {
     marginTop: 10,
+    fontFamily: "Poppins-Regular",
   },
   basicText: {
     fontSize: 18,
+    fontFamily: "Poppins-Regular",
   },
   basicTextDl: {
     // color: "#FF3F32",

@@ -14,7 +14,7 @@ import { DATA } from "../Data";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function Home({ navigation }) {
+export default function Home({ route, navigation }) {
   const [todos, setTodos] = useState([]);
   const [search, setSearch] = useState("");
   const [searchBarFocused, setSearchBarFocused] = useState(false);
@@ -31,7 +31,10 @@ export default function Home({ navigation }) {
   ];
 
   const isFocused = useIsFocused();
+
   const searchRef = useRef();
+
+  const { fontsLoaded } = route.params;
 
   const regex = /(\d+).(\d+).(\d+)/;
 
@@ -58,7 +61,7 @@ export default function Home({ navigation }) {
               style={styles.searchBoxText}
               placeholder="search..."
               onChangeText={(search) => setSearch(search.toLowerCase())}
-              defaultValue={search}
+              // defaultValue={search}
               ref={searchRef}
               autoFocus={true}
               returnKeyType="search"
@@ -72,8 +75,10 @@ export default function Home({ navigation }) {
   const searchBoxActive = () => {
     if (!searchBarFocused) {
       setSearchBarFocused(true);
+      searchRef;
     } else {
       setSearchBarFocused(false);
+
       setSearch("");
     }
   };
@@ -85,7 +90,12 @@ export default function Home({ navigation }) {
         : task.title.toLowerCase().includes(search) ||
             task.description.toLowerCase().includes(search);
     }).map((task, index) => (
-      <TaskCard task={task} key={index} getAllTasks={getAllTasks} />
+      <TaskCard
+        task={task}
+        key={index}
+        getAllTasks={getAllTasks}
+        fonts={fontsLoaded}
+      />
     ));
 
     setTodos(mappedData.reverse());
@@ -93,18 +103,23 @@ export default function Home({ navigation }) {
 
   useEffect(() => {
     getAllTasks();
+    // if (searchRef.current) {
+    //   searchRef.current.focus();
+    // }
   }, [isFocused, search, searchBarFocused]);
 
   return (
     <LinearGradient
+      style={{
+        flex: 1,
+      }}
       colors={["#81c8ee", "#ede8e4"]}
       start={{ x: 0.4, y: 0.3 }}
       end={{ x: 0.2, y: 0.95 }}
     >
       <View style={styles.container}>
         <View>
-          <Text>Ready to start your day?</Text>
-          <Text>
+          <Text style={styles.basicText}>
             Today is {weekday[date.getDay()]}{" "}
             {date.toLocaleDateString().replace(regex, "$2.$1.$3")}
           </Text>
@@ -124,10 +139,10 @@ export default function Home({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 10,
   },
   todosContainer: {
-    height: "92%",
     marginTop: 10,
   },
   searchBoxBlur: {
@@ -149,5 +164,10 @@ const styles = StyleSheet.create({
   },
   searchBoxText: {
     marginLeft: 5,
+  },
+  basicText: {
+    textAlign: "center",
+    fontSize: 20,
+    fontFamily: "Poppins-Regular",
   },
 });

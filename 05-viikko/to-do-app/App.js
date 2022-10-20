@@ -1,16 +1,27 @@
 import React, { Component } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./components/Home";
 import NewTask from "./components/NewTask";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Archive from "./components/Archive";
 import { Ionicons } from "@expo/vector-icons";
 import { ToastProvider } from "react-native-toast-notifications";
+import { useFonts } from "expo-font";
 
 export default function App() {
-  const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
+
+  const [fontsLoaded] = useFonts({
+    "FuzzyBubbles-Regular": require("./assets/fonts/FuzzyBubbles-Regular.ttf"),
+    "Poppins-Bold": require("./assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-Regular": require("./assets/fonts/Poppins-Regular.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  } else {
+    console.log("No problem with fonts");
+  }
 
   return (
     <ToastProvider
@@ -52,6 +63,9 @@ export default function App() {
             tabBarItemStyle: {
               backgroundColor: "#ede8e4",
             },
+            headerTitleStyle: {
+              fontFamily: "Poppins-Bold",
+            },
             tabBarActiveTintColor: "#284277",
             tabBarInactiveTintColor: "gray",
             tabBarHideOnKeyboard: "true",
@@ -64,6 +78,7 @@ export default function App() {
               title: "Home",
               headerTitle: "Home",
             }}
+            initialParams={fontsLoaded}
           />
           <Tab.Screen
             name="New Task"
@@ -72,6 +87,7 @@ export default function App() {
               title: "New Task",
               headerTitle: "Create a Task",
             }}
+            initialParams={fontsLoaded}
           />
           <Tab.Screen
             name="Archive"
@@ -80,6 +96,7 @@ export default function App() {
               title: "Archive",
               headerTitle: "Archive",
             }}
+            initialParams={fontsLoaded}
           />
         </Tab.Navigator>
       </NavigationContainer>

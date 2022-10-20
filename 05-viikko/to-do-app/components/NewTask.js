@@ -15,7 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { useToast } from "react-native-toast-notifications";
 
-export default function NewTask({ navigation }) {
+export default function NewTask({ route, navigation }) {
   const [createdDate] = useState(new Date().toLocaleDateString());
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
@@ -34,7 +34,7 @@ export default function NewTask({ navigation }) {
     archived: "",
     isEnabled: isEnabled,
   });
-
+  const { fontsLoaded } = route.params;
   const toast = useToast();
 
   // let deadline;
@@ -128,8 +128,6 @@ export default function NewTask({ navigation }) {
       updateTask("deadline", "no deadline");
       updateTask("isEnabled", false);
     }
-
-    console.log(task);
   }, [date, isEnabled, prioritized, task.title]);
 
   return (
@@ -156,7 +154,13 @@ export default function NewTask({ navigation }) {
           style={styles.descriptionBox}
         />
         <View style={styles.prioritizedBox}>
-          <Text>Prioritized?</Text>
+          <Text
+            style={{
+              fontFamily: "Poppins-Regular",
+            }}
+          >
+            Prioritized?
+          </Text>
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={prioritized ? "#284277" : "#f4f3f4"}
@@ -173,7 +177,13 @@ export default function NewTask({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text>Deadline?</Text>
+            <Text
+              style={{
+                fontFamily: "Poppins-Regular",
+              }}
+            >
+              Deadline?
+            </Text>
             <Switch
               trackColor={{ false: "#767577", true: "#81b0ff" }}
               thumbColor={isEnabled ? "#284277" : "#f4f3f4"}
@@ -276,6 +286,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 15,
     elevation: 5,
+    fontFamily: "Poppins-Regular",
   },
   descriptionBox: {
     borderWidth: 1,
@@ -293,6 +304,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 15,
     elevation: 5,
+    fontFamily: "Poppins-Regular",
   },
   prioritizedBox: {
     borderWidth: 1,
