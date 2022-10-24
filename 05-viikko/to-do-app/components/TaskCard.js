@@ -16,8 +16,15 @@ import { DATA } from "../Data";
 import { ArchiveData } from "../ArchiveData";
 import * as Animatable from "react-native-animatable";
 import { useToast } from "react-native-toast-notifications";
+import { useFonts } from "expo-font";
 
-export default function TaskCard({ task, getAllTasks, fonts }) {
+export default function TaskCard({ task, getAllTasks }) {
+  const [fontsLoaded] = useFonts({
+    "FuzzyBubbles-Regular": require("../assets/fonts/FuzzyBubbles-Regular.ttf"),
+    "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
+  });
+
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(
@@ -94,10 +101,6 @@ export default function TaskCard({ task, getAllTasks, fonts }) {
 
     getAllTasks();
   };
-  const editTaskBtn = (id) => {
-    console.log("EDITING: ", id);
-    const indexToDelete = DATA.findIndex((element) => element.id === id);
-  };
 
   const archiveTaskBtn = (id) => {
     task.archived = date.toLocaleDateString();
@@ -115,8 +118,6 @@ export default function TaskCard({ task, getAllTasks, fonts }) {
 
       animationType: "slide-in | zoom-in",
     });
-
-    // console.log(ArchiveData);
   };
 
   const updateTask = (key, value) => {
@@ -132,7 +133,7 @@ export default function TaskCard({ task, getAllTasks, fonts }) {
     event.preventDefault();
 
     console.log(" <--- SUBMITTED ---> ");
-
+    setModalVisible(!modalVisible);
     Keyboard.dismiss();
 
     task.title = editTask.title;
@@ -216,47 +217,75 @@ export default function TaskCard({ task, getAllTasks, fonts }) {
               >
                 <View style={styles.centeredView}>
                   <View style={styles.modalView}>
-                    <Text style={styles.modalText}>
-                      Edit task: {task.title}
-                    </Text>
-                    <Text>NewTask</Text>
+                    <Text style={styles.modalTextHeader}>{task.title}</Text>
+
                     <TextInput
+                      style={styles.titleBox}
                       placeholder="Title"
                       value={editTask.title}
                       onChangeText={(value) => updateTask("title", value)}
                     />
                     <TextInput
+                      style={styles.descriptionBox}
                       placeholder="description"
                       multiline={true}
                       value={editTask.description}
                       onChangeText={(value) => updateTask("description", value)}
                     />
-                    <Text>Prioritized?</Text>
-                    <Switch
-                      trackColor={{ false: "#767577", true: "#81b0ff" }}
-                      thumbColor={editTask.prioritized ? "#f5dd4b" : "#f4f3f4"}
-                      ios_backgroundColor="#3e3e3e"
-                      onValueChange={toggleSwitchPrio}
-                      value={editTask.prioritized}
-                    />
-                    <Text>Deadline?</Text>
-                    <Switch
-                      trackColor={{ false: "#767577", true: "#81b0ff" }}
-                      thumbColor={editTask.isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                      ios_backgroundColor="#3e3e3e"
-                      onValueChange={toggleSwitch}
-                      value={editTask.isEnabled}
-                    />
-                    {editTask.isEnabled && (
-                      <Pressable onPress={showDatepicker}>
-                        <Text>Show Calendar</Text>
-                      </Pressable>
-                    )}
-
-                    <Pressable onPress={submitNewTask}>
-                      <Text>SUBMIT NEW TASK</Text>
-                    </Pressable>
-
+                    <View style={styles.prioritizedBox}>
+                      <Text style={styles.modalText}>Prioritized?</Text>
+                      <Switch
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={
+                          editTask.prioritized ? "#f5dd4b" : "#f4f3f4"
+                        }
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={toggleSwitchPrio}
+                        value={editTask.prioritized}
+                      />
+                    </View>
+                    <View style={styles.deadlineBox}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text style={styles.modalText}>Deadline?</Text>
+                        <Switch
+                          trackColor={{ false: "#767577", true: "#81b0ff" }}
+                          thumbColor={
+                            editTask.isEnabled ? "#f5dd4b" : "#f4f3f4"
+                          }
+                          ios_backgroundColor="#3e3e3e"
+                          onValueChange={toggleSwitch}
+                          value={editTask.isEnabled}
+                        />
+                      </View>
+                      {editTask.isEnabled && (
+                        <TouchableOpacity
+                          onPress={showDatepicker}
+                          style={{
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              borderWidth: 1,
+                              borderRadius: 15,
+                              padding: 1,
+                              width: "50%",
+                              textAlign: "center",
+                              color: "#fff",
+                              backgroundColor: "#284277",
+                            }}
+                          >
+                            Show 📆
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                     {show && (
                       <DateTimePicker
                         testID="dateTimePicker"
@@ -265,19 +294,27 @@ export default function TaskCard({ task, getAllTasks, fonts }) {
                         onChange={onChange}
                       />
                     )}
-                    <Pressable
-                      style={[styles.button, styles.buttonClose]}
-                      onPress={() => setModalVisible(!modalVisible)}
-                    >
-                      <Text style={styles.textStyle}>Hide Modal</Text>
-                    </Pressable>
 
-                    <Pressable
-                      style={[styles.button, styles.buttonClose]}
-                      onPress={() => editTaskBtn(task.id)}
+                    <View
+                      style={{
+                        width: "80%",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
                     >
-                      <Text style={styles.textStyle}>EDIT</Text>
-                    </Pressable>
+                      <Pressable
+                        style={[styles.button, styles.buttonSubmitEdit]}
+                        onPress={submitNewTask}
+                      >
+                        <Text style={styles.buttonTextStyle}>SAVE</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.button, styles.buttonCancelModal]}
+                        onPress={() => setModalVisible(!modalVisible)}
+                      >
+                        <Text style={styles.buttonTextStyle}>CANCEL</Text>
+                      </Pressable>
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -384,13 +421,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
+    borderWidth: 1,
   },
   modalView: {
+    borderWidth: 1,
+    // height: "85%",
+    width: "75%",
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 35,
+    paddingVertical: 15,
     alignItems: "center",
+    justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -400,11 +442,90 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  titleBox: {
+    width: "85%",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 15,
+    backgroundColor: "#00D4A2",
+    color: "#000",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+    fontFamily: "Poppins-Regular",
+  },
+  descriptionBox: {
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 15,
+    height: "15%",
+    width: "85%",
+    backgroundColor: "#00D4A2",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+    fontFamily: "Poppins-Regular",
+  },
+  prioritizedBox: {
+    width: "85%",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F8F685",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+  },
+
+  deadlineBox: {
+    width: "85%",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 15,
+    // flexDirection: "row",
+    justifyContent: "center",
+    // alignItems: "center",
+    backgroundColor: "#FF9B37",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 5,
+  },
+
   button: {
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    alignSelf: "flex-start",
   },
   buttonEdit: {
     backgroundColor: "#5B58EC",
@@ -415,13 +536,39 @@ const styles = StyleSheet.create({
   buttonDelete: {
     backgroundColor: "#FF3F32",
   },
+
+  buttonSubmitEdit: {
+    backgroundColor: "#5B58EC",
+    marginTop: 10,
+    width: "55%",
+  },
+  buttonCancelModal: {
+    backgroundColor: "#102A57",
+    marginTop: 10,
+    width: "55%",
+  },
   textStyle: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
   },
+
+  buttonTextStyle: {
+    fontFamily: "FuzzyBubbles-Regular",
+    color: "white",
+    fontSize: 18,
+    // fontWeight: "bold",
+    textAlign: "center",
+  },
   modalText: {
+    // marginBottom: 15,
+    textAlign: "center",
+    fontFamily: "Poppins-Regular",
+  },
+  modalTextHeader: {
+    fontSize: 24,
     marginBottom: 15,
     textAlign: "center",
+    fontFamily: "Poppins-Regular",
   },
 });

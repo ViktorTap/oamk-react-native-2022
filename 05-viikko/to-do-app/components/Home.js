@@ -7,7 +7,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useLayoutEffect,
+  createRef,
+  forwardRef,
+  useRef,
+} from "react";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import TaskCard from "./TaskCard";
 import { DATA } from "../Data";
@@ -31,14 +38,34 @@ export default function Home({ route, navigation }) {
   ];
 
   const isFocused = useIsFocused();
-
-  const searchRef = useRef();
+  const ref = createRef();
 
   const { fontsLoaded } = route.params;
 
   const regex = /(\d+).(\d+).(\d+)/;
 
+  const SearchBarHeader = (props) => (
+    <TextInput
+      style={props.searchBoxStyleProp}
+      placeholder="search..."
+      onChangeText={(search) => props.setSearch(search.toLowerCase())}
+      defaultValue={props.search}
+      autoFocus={true}
+      returnKeyType="search"
+    />
+  );
+
   useLayoutEffect(() => {
+    const searchBoxActive = () => {
+      if (!searchBarFocused) {
+        setSearchBarFocused(true);
+      } else {
+        setSearchBarFocused(false);
+
+        setSearch("");
+      }
+    };
+
     navigation.setOptions({
       headerRight: () => (
         <View
@@ -57,31 +84,16 @@ export default function Home({ route, navigation }) {
           )}
 
           {searchBarFocused && (
-            <TextInput
-              style={styles.searchBoxText}
-              placeholder="search..."
-              onChangeText={(search) => setSearch(search.toLowerCase())}
-              // defaultValue={search}
-              ref={searchRef}
-              autoFocus={true}
-              returnKeyType="search"
+            <SearchBarHeader
+              search={search}
+              setSearch={setSearch}
+              searchBoxStyleProp={styles.searchBoxText}
             />
           )}
         </View>
       ),
     });
   }, [searchBarFocused]);
-
-  const searchBoxActive = () => {
-    if (!searchBarFocused) {
-      setSearchBarFocused(true);
-      searchRef;
-    } else {
-      setSearchBarFocused(false);
-
-      setSearch("");
-    }
-  };
 
   const getAllTasks = () => {
     const mappedData = DATA.filter((task) => {
@@ -103,9 +115,8 @@ export default function Home({ route, navigation }) {
 
   useEffect(() => {
     getAllTasks();
-    // if (searchRef.current) {
-    //   searchRef.current.focus();
-    // }
+    // console.log(searchBarFocused);
+    const sBarRef = ref.current;
   }, [isFocused, search, searchBarFocused]);
 
   return (
@@ -124,7 +135,11 @@ export default function Home({ route, navigation }) {
             {date.toLocaleDateString().replace(regex, "$2.$1.$3")}
           </Text>
         </View>
-        <ScrollView style={styles.todosContainer}>
+        <ScrollView
+          style={styles.todosContainer}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="on-drag"
+        >
           {todos.length === 0 ? (
             <Text>"No tasks yet. Add new task." </Text>
           ) : (
@@ -140,7 +155,8 @@ export default function Home({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingTop: 10,
   },
   todosContainer: {
     marginTop: 10,
@@ -164,6 +180,9 @@ const styles = StyleSheet.create({
   },
   searchBoxText: {
     marginLeft: 5,
+  },
+  searchBoxTextHidden: {
+    display: "none",
   },
   basicText: {
     textAlign: "center",
