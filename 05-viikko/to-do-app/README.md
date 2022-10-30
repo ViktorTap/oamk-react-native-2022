@@ -5,9 +5,7 @@
 ### FIREBASE as a backend / database
 
 
-<img src="https://user-images.githubusercontent.com/82266178/198871006-190f1e50-243c-4986-8324-ab6a6779058c.jpg" height="200">
-
-<img src="https://user-images.githubusercontent.com/82266178/198871079-aa6a43c4-8405-4cec-8354-333d815f7c53.jpg" height="200">
+<img src="https://user-images.githubusercontent.com/82266178/198871006-190f1e50-243c-4986-8324-ab6a6779058c.jpg" height="200"><img src="https://user-images.githubusercontent.com/82266178/198871079-aa6a43c4-8405-4cec-8354-333d815f7c53.jpg" height="200">
 
 <img src="https://user-images.githubusercontent.com/82266178/198871095-59154ead-b4e3-4f4f-ae31-e3ac29eebe5b.jpg" height="200">
 
