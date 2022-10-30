@@ -1,4 +1,4 @@
-### TO-DO-APP
+# TO-DO-APP
 
-# CREATE, EDIT, DELETE, ARCHIVE, RESTORE APPS
-# With priority and deadline
+### CREATE, EDIT, DELETE, ARCHIVE, RESTORE APPS
+### With priority and deadline
