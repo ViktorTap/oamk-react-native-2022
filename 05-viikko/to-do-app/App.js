@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./components/Home";
 import NewTask from "./components/NewTask";
@@ -16,6 +16,10 @@ export default function App() {
     "Poppins-Bold": require("./assets/fonts/Poppins-Bold.ttf"),
     "Poppins-Regular": require("./assets/fonts/Poppins-Regular.ttf"),
   });
+
+  useEffect(() => {
+    console.log("moi");
+  }, []);
 
   if (!fontsLoaded) {
     return null;

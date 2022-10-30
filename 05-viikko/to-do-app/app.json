@@ -1,8 +1,9 @@
 {
   "expo": {
     "name": "to-do-app",
-    "slug": "to-do-app",
+    "slug": "to-do-app-oamk",
     "version": "1.0.0",
+    "owner": "viktortap",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,9 +15,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },

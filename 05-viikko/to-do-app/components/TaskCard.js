@@ -8,15 +8,22 @@ import {
   Modal,
   Switch,
   Keyboard,
+  KeyboardAvoidingView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { DATA } from "../Data";
-import { ArchiveData } from "../ArchiveData";
 import * as Animatable from "react-native-animatable";
 import { useToast } from "react-native-toast-notifications";
 import { useFonts } from "expo-font";
+import {
+  db,
+  doc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  archivedCollectionRef,
+} from "../firebase/Config";
 
 export default function TaskCard({ task, getAllTasks }) {
   const [fontsLoaded] = useFonts({
@@ -79,9 +86,9 @@ export default function TaskCard({ task, getAllTasks }) {
     showMode("date");
   };
 
-  const deleteTaskBtn = (id) => {
-    const indexToDelete = DATA.findIndex((element) => element.id === id);
-    DATA.splice(indexToDelete, 1);
+  const deleteTaskBtn = async () => {
+    const taskDoc = doc(db, "tasks", task.id);
+    await deleteDoc(taskDoc);
 
     toast.show("Task deleted!", {
       type: "warning",
@@ -95,20 +102,27 @@ export default function TaskCard({ task, getAllTasks }) {
     getAllTasks();
   };
 
-  const deleteAfterArchive = (id) => {
-    const indexToDelete = DATA.findIndex((element) => element.id === id);
-    DATA.splice(indexToDelete, 1);
+  const deleteAfterArchive = async () => {
+    const taskDoc = doc(db, "tasks", task.id);
+    await deleteDoc(taskDoc);
 
     getAllTasks();
   };
 
-  const archiveTaskBtn = (id) => {
+  const archiveTaskBtn = async () => {
     task.archived = date.toLocaleDateString();
 
-    const indexToDelete = DATA.findIndex((element) => element.id === id);
-    ArchiveData.push(DATA[indexToDelete]);
+    await addDoc(archivedCollectionRef, {
+      title: task.title,
+      description: task.description,
+      prioritized: task.prioritized,
+      created: task.created,
+      deadline: task.deadline,
+      archived: task.archived,
+      isEnabled: task.isEnabled,
+    });
 
-    deleteAfterArchive(id);
+    deleteAfterArchive();
 
     toast.show("Task is done and archieved!", {
       type: "success",
@@ -125,22 +139,30 @@ export default function TaskCard({ task, getAllTasks }) {
       ...prevTask,
       [key]: value,
     }));
-
-    // console.log(DATA);
   };
 
-  const submitNewTask = (event) => {
+  const submitNewTask = async (event) => {
     event.preventDefault();
 
-    console.log(" <--- SUBMITTED ---> ");
+    console.log(" <--- UPDATED ---> ");
+    console.log(task.id);
+
+    const taskDoc = doc(db, "tasks", task.id);
+
+    const updatedFields = {
+      title: editTask.title,
+      description: editTask.description,
+      prioritized: editTask.prioritized,
+      deadline: editTask.deadline,
+      isEnabled: editTask.isEnabled,
+    };
+
+    await updateDoc(taskDoc, updatedFields);
+
     setModalVisible(!modalVisible);
     Keyboard.dismiss();
 
-    task.title = editTask.title;
-    task.description = editTask.description;
-    task.prioritized = editTask.prioritized;
-    task.deadline = editTask.deadline;
-    task.isEnabled = editTask.isEnabled;
+    getAllTasks();
   };
 
   useEffect(() => {

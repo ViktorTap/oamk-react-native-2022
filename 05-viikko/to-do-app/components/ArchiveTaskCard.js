@@ -8,19 +8,26 @@ import {
 import React, { useState, useEffect } from "react";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { ArchiveData } from "../ArchiveData";
-import { DATA } from "../Data";
 import { useToast } from "react-native-toast-notifications";
 
-export default function ArchiveTaskCard({ task, getAllArchiveTasks, fonts }) {
+export default function ArchiveTaskCard({
+  task,
+  getAllArchiveTasks,
+  fonts,
+  addDoc,
+  tasksCollectionRef,
+  deleteDoc,
+  db,
+  doc,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const regex = /(\d+).(\d+).(\d+)/;
 
   const toast = useToast();
 
-  const deleteTaskBtn = (id) => {
-    const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
-    ArchiveData.splice(indexToDelete, 1);
+  const deleteTaskBtn = async () => {
+    const taskDoc = doc(db, "archived", task.id);
+    await deleteDoc(taskDoc);
 
     toast.show("Task deleted!", {
       type: "warning",
@@ -34,17 +41,23 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks, fonts }) {
     getAllArchiveTasks();
   };
 
-  const deleteTaskWihoutToast = (id) => {
-    const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
-    ArchiveData.splice(indexToDelete, 1);
+  const deleteTaskWihoutToast = async () => {
+    const taskDoc = doc(db, "archived", task.id);
+    await deleteDoc(taskDoc);
 
     getAllArchiveTasks();
   };
 
-  const restoreTaskBtn = (id) => {
-    const indexToDelete = ArchiveData.findIndex((element) => element.id === id);
-
-    DATA.push(ArchiveData[indexToDelete]);
+  const restoreTaskBtn = async () => {
+    await addDoc(tasksCollectionRef, {
+      title: task.title,
+      description: task.description,
+      prioritized: task.prioritized,
+      created: task.created,
+      deadline: task.deadline,
+      archived: "",
+      isEnabled: task.isEnabled,
+    });
 
     toast.show("Task restored!", {
       type: "success",
@@ -55,7 +68,7 @@ export default function ArchiveTaskCard({ task, getAllArchiveTasks, fonts }) {
       animationType: "slide-in | zoom-in",
     });
 
-    deleteTaskWihoutToast(id);
+    deleteTaskWihoutToast();
   };
 
   return (
@@ -151,7 +164,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignSelf: "flex-start",
   },
-
   button: {
     borderRadius: 20,
     padding: 10,

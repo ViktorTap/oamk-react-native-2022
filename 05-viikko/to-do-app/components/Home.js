@@ -5,26 +5,26 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import React, {
-  useEffect,
-  useState,
-  useLayoutEffect,
-  createRef,
-  forwardRef,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import TaskCard from "./TaskCard";
-import { DATA } from "../Data";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
+import { getDocs, tasksCollectionRef } from "../firebase/Config";
+import * as Animatable from "react-native-animatable";
 
 export default function Home({ route, navigation }) {
-  const [todos, setTodos] = useState([]);
   const [search, setSearch] = useState("");
   const [searchBarFocused, setSearchBarFocused] = useState(false);
+
+  // <----- TESTING FIREBASE -----> //
+
+  const [fbTasks, setFbTasks] = useState([]);
+
+  // <----- TESTING FIREBASE -----> //
 
   const [date] = useState(new Date());
   const weekday = [
@@ -38,13 +38,12 @@ export default function Home({ route, navigation }) {
   ];
 
   const isFocused = useIsFocused();
-  const ref = createRef();
 
   const { fontsLoaded } = route.params;
 
   const regex = /(\d+).(\d+).(\d+)/;
 
-  const SearchBarHeader = (props) => (
+  const SearchBarHeader = (props, searchRef) => (
     <TextInput
       style={props.searchBoxStyleProp}
       placeholder="search..."
@@ -55,17 +54,17 @@ export default function Home({ route, navigation }) {
     />
   );
 
+  const searchBoxActive = () => {
+    if (!searchBarFocused) {
+      setSearchBarFocused(true);
+    } else {
+      setSearchBarFocused(false);
+
+      setSearch("");
+    }
+  };
+
   useLayoutEffect(() => {
-    const searchBoxActive = () => {
-      if (!searchBarFocused) {
-        setSearchBarFocused(true);
-      } else {
-        setSearchBarFocused(false);
-
-        setSearch("");
-      }
-    };
-
     navigation.setOptions({
       headerRight: () => (
         <View
@@ -95,28 +94,14 @@ export default function Home({ route, navigation }) {
     });
   }, [searchBarFocused]);
 
-  const getAllTasks = () => {
-    const mappedData = DATA.filter((task) => {
-      return search.toLowerCase() === ""
-        ? task
-        : task.title.toLowerCase().includes(search) ||
-            task.description.toLowerCase().includes(search);
-    }).map((task, index) => (
-      <TaskCard
-        task={task}
-        key={index}
-        getAllTasks={getAllTasks}
-        fonts={fontsLoaded}
-      />
-    ));
-
-    setTodos(mappedData.reverse());
+  const getTasks = async () => {
+    const tasksData = await getDocs(tasksCollectionRef);
+    console.log(tasksData.docs);
+    setFbTasks(tasksData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
   };
 
   useEffect(() => {
-    getAllTasks();
-    // console.log(searchBarFocused);
-    const sBarRef = ref.current;
+    getTasks();
   }, [isFocused, search, searchBarFocused]);
 
   return (
@@ -140,10 +125,68 @@ export default function Home({ route, navigation }) {
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="on-drag"
         >
-          {todos.length === 0 ? (
-            <Text>"No tasks yet. Add new task." </Text>
+          {fbTasks.length === 0 ? (
+            <View
+              style={[
+                styles.container,
+                {
+                  justifyContent: "space-between",
+                  height: 550,
+                },
+              ]}
+            >
+              <View>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: "center",
+                    marginTop: 35,
+                  }}
+                >
+                  No tasks yet 🙈
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: "center",
+                    marginTop: 10,
+                  }}
+                >
+                  Add new task ✍️
+                </Text>
+              </View>
+
+              <Animatable.View
+                animation="bounce"
+                easing="ease-in-out"
+                iterationCount="infinite"
+                iterationDelay={2500}
+              >
+                <View
+                  style={{
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome name="arrow-down" size={48} />
+                </View>
+              </Animatable.View>
+            </View>
           ) : (
-            todos
+            fbTasks
+              .filter((task) => {
+                return search.toLowerCase() === ""
+                  ? task
+                  : task.title.toLowerCase().includes(search) ||
+                      task.description.toLowerCase().includes(search);
+              })
+              .map((task) => (
+                <TaskCard
+                  task={task}
+                  key={task.id}
+                  getAllTasks={getTasks}
+                  fonts={fontsLoaded}
+                />
+              ))
           )}
         </ScrollView>
         <StatusBar style="dark" />

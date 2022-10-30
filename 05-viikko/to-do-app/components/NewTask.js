@@ -4,16 +4,16 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   Keyboard,
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { DATA } from "../Data";
 import { LinearGradient } from "expo-linear-gradient";
-
 import { useToast } from "react-native-toast-notifications";
+// <----- FIREBASE -----> //
+import { addDoc, tasksCollectionRef } from "../firebase/Config";
+// <----- FIREBASE -----> //
 
 export default function NewTask({ route, navigation }) {
   const [createdDate] = useState(new Date().toLocaleDateString());
@@ -25,7 +25,6 @@ export default function NewTask({ route, navigation }) {
   const [isSubmitActive, setIsSubmitActive] = useState(false);
   const regex = /(\d+).(\d+).(\d+)/;
   const [task, setTask] = useState({
-    id: DATA.length === 0 ? 1 : DATA.length + 1,
     title: "",
     description: "",
     prioritized: prioritized,
@@ -36,11 +35,6 @@ export default function NewTask({ route, navigation }) {
   });
   const { fontsLoaded } = route.params;
   const toast = useToast();
-
-  // let deadline;
-  // if (isEnabled) {
-  //   deadline = date.toLocaleDateString().replace(/\//g, ".");
-  // }
 
   const toggleSwitch = () => setIsEnabled(() => !isEnabled);
   const toggleSwitchPrio = () => {
@@ -72,15 +66,22 @@ export default function NewTask({ route, navigation }) {
     }));
   };
 
-  const submitNewTask = (event) => {
+  const submitNewTask = async (event) => {
     event.preventDefault();
     Keyboard.dismiss();
 
-    DATA.push(task);
+    await addDoc(tasksCollectionRef, {
+      title: task.title,
+      description: task.description,
+      prioritized: task.prioritized,
+      created: task.created,
+      deadline: task.deadline,
+      archived: task.archived,
+      isEnabled: task.isEnabled,
+    });
 
     // Set task to default
     setTask({
-      id: DATA.length === 0 ? 1 : DATA.length + 1,
       title: "",
       description: "",
       prioritized: prioritized,
@@ -89,8 +90,6 @@ export default function NewTask({ route, navigation }) {
       archived: "",
       isEnabled: isEnabled,
     });
-
-    console.log("This is the new task: ", task);
 
     setIsEnabled(false);
     setPrioritized(false);
